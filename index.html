@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8" />
+  <title>ΣΚΑΛΟΠΑΤΙ Χ3</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(to right, #f0f2f5, #dfe6e9);
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #2d3436;
+      margin-bottom: 30px;
+      font-size: 2em;
+    }
+    table {
+      border-collapse: collapse;
+      width: 95%;
+      max-width: 1000px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: center;
+      border-bottom: 1px solid #ecf0f1;
+      vertical-align: top;
+    }
+    th {
+      background-color: #0984e3;
+      color: white;
+      text-transform: uppercase;
+      font-size: 0.85em;
+      letter-spacing: 1px;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    input, select, textarea {
+      font-weight: bold;
+      text-align: center;
+      font-family: 'Roboto', sans-serif;
+    }
+    input, select {
+      width: 100px;
+      padding: 6px 8px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #0984e3;
+      outline: none;
+      background-color: #eaf4ff;
+    }
+    textarea {
+      width: 95%;
+      font-size: 0.9em;
+      resize: vertical;
+      padding: 8px;
+      min-height: 50px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      margin-top: 6px;
+      text-align: left;
+      font-weight: normal;
+    }
+    .profit {
+      font-weight: bold;
+    }
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .failure {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    #forum-box {
+      width: 95%;
+      max-width: 1000px;
+      margin-top: 30px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 15px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    #forum-box label {
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #2d3436;
+      font-size: 1.1em;
+      user-select: none;
+    }
+    #general-comments {
+      font-size: 1em;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      resize: none;
+      font-family: 'Roboto', sans-serif;
+      box-sizing: border-box;
+      height: 60px;
+      text-align: left;
+      font-weight: normal;
+    }
+    #messages {
+      margin-top: 15px;
+      max-height: 300px;
+      overflow-y: auto;
+      border-top: 1px solid #ccc;
+      padding-top: 10px;
+      font-size: 0.95em;
+      color: #2d3436;
+      line-height: 1.4em;
+    }
+    .message {
+      padding: 8px 12px;
+      background: #f1f3f5;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      cursor: context-menu;
+    }
+  </style>
+</head>
+<body>
+  <h1>ΣΚΑΛΟΠΑΤΙ Χ3</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>ΗΜΕΡΑ</th>
+        <th>ΑΠΟΔΟΣΗ</th>
+        <th>ΠΟΝΤΑΡΙΣΜΑ (€)</th>
+        <th>ΚΕΡΔΟΣ (€)</th>
+        <th>ΑΠΟΤΕΛΕΣΜΑ</th>
+        <th>ΣΧΟΛΙΑ</th>
+      </tr>
+    </thead>
+    <tbody id="bet-table"></tbody>
+  </table>
+
+  <div id="forum-box">
+    <label for="general-comments">Γενικά Σχόλια / Παρατηρήσεις (πάτησε Enter για αποστολή)</label>
+    <textarea id="general-comments" placeholder="Γράψτε εδώ τα σχόλιά σας..."></textarea>
+    <div id="messages"></div>
+  </div>
+
+  <script>
+    const days = 7;
+
+    function createRow(i) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${i + 1}</td>
+        <td><input type="number" step="0.01" onchange="saveAndCalculate()" id="odds-${i}"></td>
+        <td><input type="number" step="0.01" onchange="saveAndCalculate()" id="stake-${i}"></td>
+        <td class="profit" id="profit-${i}">0.00 €</td>
+        <td>
+          <select id="result-${i}" onchange="saveAndCalculate()">
+            <option value="open">Ανοιχτό</option>
+            <option value="success">Επιτυχία</option>
+            <option value="failure">Αποτυχία</option>
+          </select>
+        </td>
+        <td>
+          <textarea rows="2" id="comment-${i}" oninput="saveAndCalculate()" placeholder="Προσθέστε σχόλιο..."></textarea>
+        </td>
+      `;
+      return row;
+    }
+
+    function saveAndCalculate() {
+      for (let i = 0; i < days; i++) {
+        const odds = parseFloat(document.getElementById(`odds-${i}`).value) || 0;
+        const stake = parseFloat(document.getElementById(`stake-${i}`).value) || 0;
+        const result = document.getElementById(`result-${i}`).value;
+        const comment = document.getElementById(`comment-${i}`).value;
+
+        localStorage.setItem(`row-${i}`, JSON.stringify({ odds, stake, result, comment }));
+
+        const profitCell = document.getElementById(`profit-${i}`);
+        let profit = 0;
+        profitCell.className = "profit";
+
+        if (result === "success") {
+          profit = odds * stake;
+          profitCell.classList.add("success");
+        } else if (result === "failure") {
+          profit = 0;
+          profitCell.classList.add("failure");
+        }
+
+        profitCell.textContent = profit.toFixed(2) + " €";
+      }
+    }
+
+    function addMessage(text, index = null) {
+      const div = document.createElement('div');
+      div.className = 'message';
+      div.textContent = text;
+
+      div.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+        showMessageOptions(div, text);
+      });
+
+      messagesDiv.appendChild(div);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+      if (index === null) saveMessageToStorage(text);
+    }
+
+    function showMessageOptions(div, originalText) {
+      const index = Array.from(messagesDiv.children).indexOf(div);
+      const choice = prompt("✏️ Επεξεργασία ή 🗑️ Διαγραφή;\n\nΠληκτρολόγησε 'edit' ή 'delete':");
+
+      if (choice === 'delete') {
+        let stored = JSON.parse(localStorage.getItem('forum-messages') || '[]');
+        stored.splice(index, 1);
+        localStorage.setItem('forum-messages', JSON.stringify(stored));
+        messagesDiv.removeChild(div);
+      }
+
+      if (choice === 'edit') {
+        const newText = prompt("Επεξεργασία μηνύματος:", originalText);
+        if (newText !== null) {
+          div.textContent = newText;
+          let stored = JSON.parse(localStorage.getItem('forum-messages') || '[]');
+          stored[index].text = newText;
+          localStorage.setItem('forum-messages', JSON.stringify(stored));
+        }
+      }
+    }
+
+    function saveMessageToStorage(text) {
+      let stored = JSON.parse(localStorage.getItem('forum-messages') || '[]');
+      stored.push({text, timestamp: Date.now()});
+      localStorage.setItem('forum-messages', JSON.stringify(stored));
+    }
+
+    function loadMessages() {
+      const stored = JSON.parse(localStorage.getItem('forum-messages') || '[]');
+      stored.forEach((msg, idx) => {
+        addMessage(msg.text, idx);
+      });
+    }
+
+    function loadData() {
+      const table = document.getElementById("bet-table");
+      for (let i = 0; i < days; i++) {
+        const row = createRow(i);
+        table.appendChild(row);
+
+        const data = JSON.parse(localStorage.getItem(`row-${i}`));
+        if (data) {
+          document.getElementById(`odds-${i}`).value = data.odds;
+          document.getElementById(`stake-${i}`).value = data.stake;
+          document.getElementById(`result-${i}`).value = data.result || "open";
+          document.getElementById(`comment-${i}`).value = data.comment;
+        } else {
+          document.getElementById(`odds-${i}`).value = 3.00;
+          document.getElementById(`stake-${i}`).value = Math.pow(3, i) * 5;
+        }
+      }
+      saveAndCalculate();
+      loadMessages();
+    }
+
+    const commentBox = document.getElementById('general-comments');
+    const messagesDiv = document.getElementById('messages');
+
+    commentBox.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        const message = commentBox.value.trim();
+        if (message.length > 0) {
+          addMessage(message);
+          commentBox.value = '';
+        }
+      }
+    });
+
+    loadData();
+  </script>
+</body>
+</html>

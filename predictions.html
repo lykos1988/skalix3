@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Προγνωστικά Ποδοσφαίρου</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+      color: #2d3436;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #0984e3;
+    }
+
+    form {
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #0984e3;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: #fff;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #0984e3;
+      color: white;
+    }
+
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .failure {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <h1>Προγνωστικά Ποδοσφαίρου</h1>
+
+  <form id="prediction-form">
+    <input type="text" id="match" placeholder="Π.χ. Ολυμπιακός - Παναθηναϊκός" required>
+    <input type="text" id="tip" placeholder="Πρόβλεψη (π.χ. G/G, Over 2.5)" required>
+    <input type="number" step="0.01" id="odds" placeholder="Απόδοση" required>
+    <select id="result">
+      <option value="">Αποτέλεσμα</option>
+      <option value="success">✅ Επιτυχία</option>
+      <option value="failure">❌ Αποτυχία</option>
+    </select>
+    <button type="submit">Καταχώρηση Προγνωστικού</button>
+  </form>
+
+  <h2>Τρέχοντα Προγνωστικά</h2>
+  <table id="current-predictions">
+    <thead>
+      <tr>
+        <th>Αγώνας</th>
+        <th>Πρόβλεψη</th>
+        <th>Απόδοση</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Ιστορικό Προγνωστικών</h2>
+  <table id="history">
+    <thead>
+      <tr>
+        <th>Αγώνας</th>
+        <th>Πρόβλεψη</th>
+        <th>Απόδοση</th>
+        <th>Αποτέλεσμα</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const form = document.getElementById("prediction-form");
+    const currentTable = document.querySelector("#current-predictions tbody");
+    const historyTable = document.querySelector("#history tbody");
+
+    let predictions = JSON.parse(localStorage.getItem("predictions")) || [];
+
+    function render() {
+      currentTable.innerHTML = "";
+      historyTable.innerHTML = "";
+
+      predictions.forEach(p => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${p.match}</td>
+          <td>${p.tip}</td>
+          <td>${p.odds}</td>
+        `;
+
+        if (p.result === "") {
+          currentTable.appendChild(row);
+        } else {
+          row.className = p.result;
+          const historyRow = document.createElement("tr");
+          historyRow.innerHTML = `
+            <td>${p.match}</td>
+            <td>${p.tip}</td>
+            <td>${p.odds}</td>
+            <td>${p.result === 'success' ? '✅' : '❌'}</td>
+          `;
+          historyRow.className = p.result;
+          historyTable.appendChild(historyRow);
+        }
+      });
+    }
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+
+      const match = document.getElementById("match").value;
+      const tip = document.getElementById("tip").value;
+      const odds = parseFloat(document.getElementById("odds").value).toFixed(2);
+      const result = document.getElementById("result").value;
+
+      predictions.push({ match, tip, odds, result });
+      localStorage.setItem("predictions", JSON.stringify(predictions));
+      form.reset();
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
